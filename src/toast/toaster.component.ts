@@ -1,7 +1,6 @@
 import { Component, Input, OnInit, OnChanges} from '@angular/core';
 
 import { Itoast } from './Itoast';
-import { ToastComponent } from './toast.component';
 import { ToasterService } from './toaster.service';
 
 @Component ({
@@ -10,11 +9,12 @@ import { ToasterService } from './toaster.service';
                     <ng2-toast [theme]=theme *ngFor="let toast of toasts" [toast]="toast" (closeToast)="closeToast(toast)"></ng2-toast>
                 </div>`
 })
-export class ToasterComponent implements OnInit, OnChanges{
-    
-    toasts: Array<Itoast>;
+export class ToasterComponent implements OnInit, OnChanges {
+
     static POSITIONS: Array<String> = ['bottom-right', 'bottom-left', 'top-right', 'top-left', 'top-center', 'bottom-center'];
     static THEMES: Array<string> = ['default', 'material', 'bootstrap'];
+
+    toasts: Array<Itoast>;
     @Input() position;
     @Input() theme;
     @Input() limit;
@@ -26,10 +26,12 @@ export class ToasterComponent implements OnInit, OnChanges{
     }
 
     ngOnInit(): any {
-        
+        this.position = this.position === undefined ? '' : this.position;
+        this.theme = this.theme === undefined ? '' : this.theme;
+
         this._toasterService.getAllToasts().subscribe(
             (toast: Itoast) => {
-                if (toast != undefined) {
+                if (toast !== undefined) {
                     this.toasts.push(toast);
                     if (toast.timeout) {
                         this._setTimeout(toast);
@@ -39,11 +41,9 @@ export class ToasterComponent implements OnInit, OnChanges{
         );
     }
     ngOnChanges(): any {
-        this.position = '';
         this.position = this.position.indexOf(ToasterComponent.POSITIONS) > -1 ? this.position : 'top-right';
         this.position = 'toaster-position-' + this.position;
 
-        this.theme = '';
         if (this.theme) {
             this.theme = ToasterComponent.THEMES.indexOf(this.theme) > -1 ? 'toaster-theme-' + this.theme : 'toaster-theme-default';
         } else {
@@ -51,7 +51,7 @@ export class ToasterComponent implements OnInit, OnChanges{
         }
     }
     private _setTimeout(toast: Itoast) {
-        if(toast.timeout > 0) {
+        if (toast.timeout > 0) {
             window.setTimeout(() => {
                 this.clear(toast.id);
             }, toast.timeout);
@@ -67,13 +67,12 @@ export class ToasterComponent implements OnInit, OnChanges{
                     this.toasts.splice(key, 1);
                 }
             });
-        } 
-        else {
+        } else {
             throw new Error('Please provide id of Toast to close');
         }
     }
     private isFunction(obj: any) {
-        return typeof obj === "function";
+        return typeof obj === 'function';
     }
     closeToast(toast: Itoast) {
         this.clear(toast.id);
