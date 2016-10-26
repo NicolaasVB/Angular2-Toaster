@@ -21,21 +21,24 @@ export class ToasterComponent implements OnInit, OnChanges {
 
     constructor(private _toasterService: ToasterService) {
         this.position = 'toaster-position-top-right';
-        this.limit = 5;
+        this.limit = 1;
         this.toasts  = [];
     }
 
     ngOnInit(): any {
         this.position = this.position === undefined ? '' : this.position;
         this.theme = this.theme === undefined ? '' : this.theme;
+        this.limit = this.limit === undefined ? 1 : this.limit;
 
         this._toasterService.getAllToasts().subscribe(
             (toast: Itoast) => {
-                if (toast !== undefined) {
-                    this.toasts.push(toast);
-                    if (toast.timeout) {
-                        this._setTimeout(toast);
-                    }
+                if (this.toasts.length < this.limit) {
+                    if (toast !== undefined) {
+                        this.toasts.push(toast);
+                        if (toast.timeout) {
+                            this._setTimeout(toast);
+                        }
+                    }  
                 }
             }
         );
@@ -61,9 +64,6 @@ export class ToasterComponent implements OnInit, OnChanges {
         if (id) {
             this.toasts.forEach((value: any, key: number) => {
                 if (value.id === id) {
-                    if (value.onRemove && this.isFunction(value.onRemove)) {
-                        value.onRemove.call(this, value);
-                    }
                     this.toasts.splice(key, 1);
                 }
             });
